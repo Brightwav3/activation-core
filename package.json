@@ -4,6 +4,7 @@
   "private": true,
   "description": "Headless, provider-independent local activation infrastructure.",
   "type": "module",
+  "exports": { ".": { "types": "./dist/src/index.d.ts", "import": "./dist/src/index.js" } },
   "bin": {
     "activation-core": "./dist/cli/main.js"
   },
