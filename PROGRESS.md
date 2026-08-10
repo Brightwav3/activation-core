@@ -2,7 +2,7 @@
 
 ## State
 
-IN PROGRESS — automated verification is complete; physical double-clap verification on the selected Windows microphone is pending.
+COMPLETE — Activation Core v0.1; maintenance only.
 
 ## Completed
 
@@ -22,7 +22,8 @@ IN PROGRESS — automated verification is complete; physical double-clap verific
 - Hygiene scan — PASS: `node_modules/` and `dist/` are ignored; no secrets/config files are tracked.
 - `decibri.inputDevices()` — PASS: six Windows audio inputs detected, including the default microphone.
 - PCM clap regression — PASS: a `0.18` default threshold plus a 120ms refractory window turns repeated 100ms PCM frames from two physical claps into exactly one activation.
+- Physical Windows microphone test — PASS: default microphone emitted real `activation.detected` double-clap events with 300–400ms intervals; cooldown correctly suppressed duplicate activations.
 
 ## Next
 
-Run `node dist/cli/main.js listen --provider=clap --json`, clap twice, and confirm one `activation.detected` event. Wake-word remains an explicit future local-model integration.
+Stop feature work. Wake-word remains an explicit future local-model integration.
