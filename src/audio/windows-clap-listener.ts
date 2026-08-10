@@ -4,13 +4,13 @@ import { DoubleClapProvider } from "../providers/clap.js";
 import { ClapAudioBridge } from "./clap-audio-bridge.js";
 
 type MicrophoneStream = { on(event: "data", listener: (chunk: Buffer) => void): unknown; off?: (event: "data", listener: (chunk: Buffer) => void) => unknown; stop(): void; };
-export interface WindowsClapListenerOptions { sourceId: string; deviceId?: string; roomId?: string; device?: string; onPeak?: (peak: number) => void; microphoneFactory?: () => Promise<MicrophoneStream>; }
+export interface WindowsClapListenerOptions { sourceId: string; deviceId?: string; roomId?: string; device?: string; onPeak?: (peak: number) => void; onFrame?: (frame: Int16Array) => void; microphoneFactory?: () => Promise<MicrophoneStream>; }
 
 /** Windows/WASAPI PCM capture adapter. It analyses frames in memory and never records them. */
 export class WindowsClapListener {
   private microphone?: MicrophoneStream;
   private bridge: ClapAudioBridge;
-  private readonly onData = (chunk: Buffer) => this.bridge.ingest(new Int16Array(chunk.buffer, chunk.byteOffset, Math.floor(chunk.byteLength / Int16Array.BYTES_PER_ELEMENT)));
+  private readonly onData = (chunk: Buffer) => { const frame = new Int16Array(chunk.buffer, chunk.byteOffset, Math.floor(chunk.byteLength / Int16Array.BYTES_PER_ELEMENT)); this.options.onFrame?.(frame); this.bridge.ingest(frame); };
   constructor(provider: DoubleClapProvider, private readonly options: WindowsClapListenerOptions) { this.bridge = new ClapAudioBridge(provider, { sourceId: options.sourceId, deviceId: options.deviceId, roomId: options.roomId, sampleRateHz: 16_000, onPeak: options.onPeak }); }
   async start() {
     if (this.microphone) return;
