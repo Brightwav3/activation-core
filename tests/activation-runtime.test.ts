@@ -1,6 +1,8 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { ActivationRuntime, FakeActivationProvider, WakePhraseProvider, DoubleClapProvider, ExternalActivationProvider } from "../src/index.js";
+import { EventEmitter } from "node:events";
+import { ActivationRuntime, FakeActivationProvider, WakePhraseProvider, DoubleClapProvider, ExternalActivationProvider, ClapAudioBridge } from "../src/index.js";
+import { WindowsClapListener } from "../src/audio/windows-clap-listener.js";
 
 const next = () => new Promise((resolve) => setImmediate(resolve));
 
@@ -80,4 +82,31 @@ test("accepts machine-facing external activations with source metadata", async (
   await next(); await runtime.stop(); await consume;
   const event = events.find((value) => value.type === "activation.detected");
   assert.equal(event.method, "external"); assert.equal(event.sourceId, "phone"); assert.equal(event.metadata.action, "tap");
+});
+
+test("turns live PCM frame peaks into double-clap detections without persisting audio", async () => {
+  const provider = new DoubleClapProvider({ id: "clap", minimumIntervalMs: 150, maximumIntervalMs: 700, amplitudeThreshold: 0.7 });
+  const runtime = new ActivationRuntime({ providers: [provider], cooldownMs: 0 });
+  const events: any[] = [];
+  const consume = (async () => { for await (const event of runtime.events()) events.push(event); })();
+  await runtime.start();
+  const bridge = new ClapAudioBridge(provider, { sourceId: "windows-default-microphone", sampleRateHz: 16_000 });
+  bridge.ingest(Int16Array.from([0, 30_000, 0]), "2026-08-10T10:00:00.000Z");
+  bridge.ingest(Int16Array.from([0, -30_000, 0]), "2026-08-10T10:00:00.250Z");
+  await next(); await runtime.stop(); await consume;
+  const event = events.find((value) => value.type === "activation.detected");
+  assert.equal(event.method, "clap");
+  assert.equal(event.sourceId, "windows-default-microphone");
+  assert.equal(event.metadata.pattern, "double_clap");
+});
+
+test("starts and releases a Windows PCM microphone stream", async () => {
+  class TestMicrophone extends EventEmitter { stopped = false; stop() { this.stopped = true; } }
+  const microphone = new TestMicrophone();
+  const listener = new WindowsClapListener(new DoubleClapProvider(), { sourceId: "windows-default-microphone", microphoneFactory: async () => microphone });
+  await listener.start();
+  assert.equal(listener.isRunning(), true);
+  await listener.stop();
+  assert.equal(microphone.stopped, true);
+  assert.equal(listener.isRunning(), false);
 });

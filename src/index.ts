@@ -5,3 +5,5 @@ export * from "./providers/wake.js";
 export * from "./providers/clap.js";
 export * from "./providers/external.js";
 export * from "./config.js";
+export * from "./audio/clap-audio-bridge.js";
+export * from "./audio/windows-clap-listener.js";
