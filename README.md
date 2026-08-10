@@ -39,4 +39,4 @@ The supplied wake adapter is a local text-signal boundary designed for a real lo
 
 ## Real Windows double-clap
 
-`listen --provider=clap --json` opens the default Windows microphone through WASAPI, analyzes each 16-bit/16 kHz PCM frame in memory, and emits JSONL when two peaks meet the configured timing and amplitude rules. Stop it with `Ctrl+C`. It neither writes nor uploads audio. Use `--device=<name-or-id>` to choose a non-default input. Wake-word audio ingestion remains intentionally unimplemented.
+`listen --provider=clap --json` opens the default Windows microphone through WASAPI, analyzes each 16-bit/16 kHz PCM frame in memory, and emits JSONL when two peaks meet the configured timing and amplitude rules. Its default local peak threshold is `0.18`; a 120ms refractory window collapses multiple PCM frames from one physical clap into one signal. Stop it with `Ctrl+C`. It neither writes nor uploads audio. Use `--device=<name-or-id>` to choose a non-default input. Wake-word audio ingestion remains intentionally unimplemented.

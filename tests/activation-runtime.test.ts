@@ -100,6 +100,28 @@ test("turns live PCM frame peaks into double-clap detections without persisting 
   assert.equal(event.metadata.pattern, "double_clap");
 });
 
+test("reports each in-memory PCM peak for microphone diagnostics", () => {
+  const peaks: number[] = [];
+  const bridge = new ClapAudioBridge(new DoubleClapProvider(), { sourceId: "test", sampleRateHz: 16_000, onPeak: (peak) => peaks.push(peak) });
+  bridge.ingest(Int16Array.from([0, 16_384, 0]));
+  assert.deepEqual(peaks, [0.5]);
+});
+
+test("treats repeated PCM peaks from each physical clap as two claps", async () => {
+  const provider = new DoubleClapProvider();
+  const runtime = new ActivationRuntime({ providers: [provider], cooldownMs: 0 });
+  const events: any[] = [];
+  const consume = (async () => { for await (const event of runtime.events()) events.push(event); })();
+  await runtime.start();
+  const bridge = new ClapAudioBridge(provider, { sourceId: "test", sampleRateHz: 16_000, refractoryMs: 120 });
+  bridge.ingest(Int16Array.from([0, 11_900, 0]), "2026-08-10T10:00:00.000Z");
+  bridge.ingest(Int16Array.from([0, 11_000, 0]), "2026-08-10T10:00:00.100Z");
+  bridge.ingest(Int16Array.from([0, 11_500, 0]), "2026-08-10T10:00:00.300Z");
+  bridge.ingest(Int16Array.from([0, 11_700, 0]), "2026-08-10T10:00:00.400Z");
+  await next(); await runtime.stop(); await consume;
+  assert.equal(events.filter((event) => event.type === "activation.detected").length, 1);
+});
+
 test("starts and releases a Windows PCM microphone stream", async () => {
   class TestMicrophone extends EventEmitter { stopped = false; stop() { this.stopped = true; } }
   const microphone = new TestMicrophone();

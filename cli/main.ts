@@ -12,7 +12,7 @@ if (!json) fail("Use --json for machine-readable output.");
 else if (command === "listen" && option("provider") === "clap") {
   const clap = new DoubleClapProvider();
   const runtime = new ActivationRuntime({ providers: [clap] });
-  const listener = new WindowsClapListener(clap, { sourceId: "windows-default-microphone", device: option("device") });
+  const listener = new WindowsClapListener(clap, { sourceId: "windows-default-microphone", device: option("device"), ...(args.includes("--debug") ? { onPeak: (peak) => write({ type: "activation.audio.peak", peak }) } : {}) });
   const output = (async () => { for await (const event of runtime.events()) write(event); })();
   const stop = async () => { await listener.stop(); await runtime.stop(); await output; };
   process.once("SIGINT", () => { void stop(); });
