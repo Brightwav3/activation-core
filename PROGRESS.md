@@ -11,6 +11,7 @@ COMPLETE — Activation Core v0.1; maintenance only.
 - Local configured phrase, double-clap, external, and fake providers.
 - JSON/JSONL diagnostic CLI.
 - Windows/WASAPI double-clap listener backed by local `decibri` PCM capture.
+- Verified on real hardware on 2026-08-12 through Assistant Runtime: double-clap activation fired on every attempt, with no observed loss of detection.
 
 ## Verification
 
