@@ -1,5 +1,10 @@
 # Activation Core
 
+[![CI](https://github.com/Brightwav3/activation-core/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/Brightwav3/activation-core/actions/workflows/ci.yml)
+[![Node.js 22+](https://img.shields.io/badge/Node.js-22%2B-339933?logo=node.js&logoColor=white)](https://nodejs.org/)
+[![TypeScript](https://img.shields.io/badge/TypeScript-strict-3178C6?logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
+[![Part of Assistant Mark I](https://img.shields.io/badge/Part%20of-Assistant%20Mark%20I-6f42c1)](https://github.com/Brightwav3/Assistant-mark-I)
+
 Headless, local-first activation infrastructure for the Jarvis ecosystem. It detects configured signals and emits structured events; it does not transcribe, converse, reason, authorize, or persist raw audio.
 
 ## Quick start
