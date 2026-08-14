@@ -6,4 +6,6 @@ export * from "./providers/clap.js";
 export * from "./providers/external.js";
 export * from "./config.js";
 export * from "./audio/clap-audio-bridge.js";
+export * from "./audio/listener.js";
+export * from "./audio/local-clap-listener.js";
 export * from "./audio/windows-clap-listener.js";
